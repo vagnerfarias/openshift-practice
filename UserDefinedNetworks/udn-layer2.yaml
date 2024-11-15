@@ -1,0 +1,12 @@
+apiVersion: k8s.ovn.org/v1
+kind: UserDefinedNetwork
+metadata:
+  name: udn-layer2-1 
+  namespace: udn-ns-1
+spec:
+  topology: Layer2 
+  layer2: 
+    role: Primary 
+    subnets:
+      - "192.168.66.0/24"
+      - "2001:db8::/60" 

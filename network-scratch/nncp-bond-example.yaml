@@ -1,0 +1,113 @@
+interfaces:
+- name: bond99
+  type: bond
+  state: up
+  ipv4:
+    address:
+    - ip: 192.0.2.0
+      prefix-length: 24
+    enabled: true
+  link-aggregation:
+    mode: balance-rr
+    options:
+      miimon: '140'
+    port:
+    - eth3
+    - eth2
+---
+interfaces:
+  - bridge:
+      options:
+        stp:
+          enabled: false
+      port:
+        - name: bond2
+    description: Linux bridge with bond2 as a port
+    ipv4:
+      dhcp: false
+      enabled: false
+    name: br-bond2
+    state: up
+    type: linux-bridge
+--- 
+
+interfaces:
+  - description: bond2
+    ipv4:
+      dhcp: false
+      enabled: false
+    link-aggregation:
+      mode: active-backup
+      options:
+        miimon: '140'
+      port:
+        - ens2f1
+        - eno2
+    mtu: 1500
+    name: bond2
+    state: up
+    type: bond
+---
+interfaces:
+- name: ovsbr-bond2
+  type: ovs-bridge
+  state: up
+  ipv4:
+    enabled: false
+  bridge:
+    allow-extra-patch-ports: true    
+    options:
+      stp: false
+    port:
+    - name: bond2
+      link-aggregation:
+        mode: active-backup
+        port:
+          - name: ens2f1
+          - name: eno2
+- name: ens2f1
+  type: ethernet
+  state: up
+  ipv4:
+    enabled: false
+- name: eno2
+  type: ethernet
+  state: up
+  ipv4:
+    enabled: false
+bridge-mappings:
+- localnet: vlan-123
+  bridge: ovsbr-bond2
+  state: present
+- localnet: vlan-321
+  bridge: ovsbr-bond2
+  state: present
+
+
+
+---
+spec:
+  nodeSelector:
+    node-role.kubernetes.io/worker: ''
+  desiredState:
+    interfaces:
+    - name: ovs-br1
+      description: |-
+        A dedicated OVS bridge with bond2 as a port
+        allowing all VLANs and untagged traffic
+      type: ovs-bridge
+      state: up
+      bridge:
+        allow-extra-patch-ports: true    <<<<<<<<<<<<<<<<<<
+        options:
+          stp: false
+        port:
+        - name: bond2
+    ovn:
+      bridge-mappings:
+      - localnet: vlan-2024
+        bridge: ovs-br1
+        state: present
+      - localnet: vlan-1993
+        bridge: ovs-br1
+        state: present

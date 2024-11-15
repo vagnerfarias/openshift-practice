@@ -1,0 +1,16 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: efs-sc-virt
+  #annotations:
+  #  storageclass.kubevirt.io/is-default-virt-class: 'true'
+provisioner: efs.csi.aws.com
+parameters:
+  basePath: /dynamic_provisioning
+  directoryPerms: '700'
+  fileSystemId: fs-0730d3cb06e
+  gid: '107'
+  provisioningMode: efs-ap
+  uid: '107'
+reclaimPolicy: Delete
+volumeBindingMode: Immediate

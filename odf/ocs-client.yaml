@@ -1,0 +1,16 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    olm.managed: "true"
+    operators.coreos.com/ocs-client-operator.openshift-storage: ""
+  name: ocs-client-operator-stable-4.16-redhat-operators-openshift-marketplace
+  namespace: openshift-storage
+spec:
+  channel: stable-4.16
+  config: {}
+  installPlanApproval: Automatic
+  name: ocs-client-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: ocs-client-operator.v4.16.3-rhodf

@@ -1,0 +1,111 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    openshift.io/cluster-monitoring: "true"
+  name: wasp
+spec: {}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: wasp
+  namespace: wasp
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: wasp
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: wasp
+  namespace: wasp
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: system:openshift:scc:privileged
+  namespace: wasp
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:openshift:scc:privileged
+subjects:
+- kind: ServiceAccount
+  name: wasp
+  namespace: wasp
+---
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: wasp-agent
+  namespace: wasp
+  labels:
+    app: wasp
+    tier: node
+spec:
+  selector:
+    matchLabels:
+      name: wasp
+  template:
+    metadata:
+      annotations:
+        description: >-
+          Configures swap for workloads
+      labels:
+        name: wasp
+    spec:
+      containers:
+        - env:
+            - name: SWAP_UTILIZATION_THRESHOLD_FACTOR
+              value: '0.8'
+            - name: MAX_AVERAGE_SWAP_IN_PAGES_PER_SECOND
+              value: "1000"
+            - name: MAX_AVERAGE_SWAP_OUT_PAGES_PER_SECOND
+              value: "1000"
+            - name: AVERAGE_WINDOW_SIZE_SECONDS
+              value: "30"
+            - name: VERBOSITY
+              value: "1"
+            - name: FSROOT
+              value: /host
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          image: >-
+            registry.redhat.io/container-native-virtualization/wasp-agent-rhel9@sha256:84436866ef50f683f9ede2c919cab5e72f30080d1aa2ff4e6bbe4abaf91ad337
+          imagePullPolicy: Always
+          name: wasp-agent
+          resources:
+            requests:
+              cpu: 100m
+              memory: 50M
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: /host
+              name: host
+            - mountPath: /rootfs
+              name: rootfs
+      hostPID: true
+      hostUsers: true
+      priorityClassName: system-node-critical
+      serviceAccountName: wasp
+      terminationGracePeriodSeconds: 5
+      volumes:
+        - hostPath:
+            path: /
+          name: host
+        - hostPath:
+            path: /
+          name: rootfs
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 10%
+      maxSurge: 0
