@@ -1,0 +1,42 @@
+kubectl patch virtualmachine fedora-net-test-1 --type='json' -p '[
+  {
+    "op": "add",
+    "path": "/spec/template/spec/domain/devices/interfaces/-",
+    "value": {
+      "name": "nic2",
+      "bridge": {}
+    }
+  },
+  {
+    "op": "add",
+    "path": "/spec/template/spec/networks/-",
+    "value": {
+      "name": "nic2",
+      "multus": {
+        "networkName": "default/l2-net1"
+      }
+    }
+  }
+]'
+
+
+kubectl patch virtualmachine fedora-net-test-1 --type='json' -p '[
+  {
+    "op": "remove",
+    "path": "/spec/template/spec/domain/devices/interfaces/1"
+  },
+  {
+    "op": "remove",
+    "path": "/spec/template/spec/networks/1"
+  }
+]'
+
+
+
+kubectl patch virtualmachine fedora-net-test-1 --type='json' -p '[
+  {
+    "op": "add",
+    "path": "/spec/template/spec/domain/devices/interfaces/1/state",
+    "value": "absent"
+  }
+]'
