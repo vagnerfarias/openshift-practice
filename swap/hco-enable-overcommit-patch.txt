@@ -1,0 +1,13 @@
+spec:
+  higherWorkloadDensity:
+    memoryOvercommitPercentage: 150
+  
+oc -n openshift-cnv patch HyperConverged/kubevirt-hyperconverged  -p '{"spec":{"higherWorkloadDensity":{"memoryOvercommitPercentage":"150"}}}' 
+
+oc -n openshift-cnv patch HyperConverged/kubevirt-hyperconverged --type='json' -p='[
+  {
+  "op": "replace",
+  "path": "/spec/higherWorkloadDensity/memoryOvercommitPercentage",
+  "value": "150"
+  }
+]'
