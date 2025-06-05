@@ -1,0 +1,41 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: policy-openshift-plus
+placementBindingDefaults:
+  name: binding-policy-openshift-plus-hub
+policyDefaults:
+  categories:
+    - CM Configuration Management
+  controls: 
+    - CM-2 Baseline Configuration
+  namespace: policies
+  policySets:
+    - openshift-plus-hub
+  remediationAction: enforce
+  severity: medium
+  standards:
+    - NIST SP 800-53
+policies:
+# Observability Policy - start
+- name: policy-observability-storage
+  consolidateManifests: false
+  categories:
+    - CA Assessment Authorization and Monitoring
+  controls: 
+    - CA-7 Continuous Monitoring
+  #dependencies:
+  #  - name: policy-odf-status
+  manifests:
+    - path: input-acm-observability/storage.yaml
+- name: policy-observability-operator
+  consolidateManifests: false
+  categories:
+    - CA Assessment Authorization and Monitoring
+  controls: 
+    - CA-7 Continuous Monitoring
+  dependencies:
+    - name: policy-observability-storage
+  manifests:
+    - path: input-acm-observability/operator.yaml
+# Observability Policy - end
