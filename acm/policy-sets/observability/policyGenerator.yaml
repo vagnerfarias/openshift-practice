@@ -39,3 +39,11 @@ policies:
   manifests:
     - path: input-acm-observability/operator.yaml
 # Observability Policy - end
+policySets:
+  - description: The OpenShift Platform Plus policy set applies several policies
+      that will install the OpenShift Platform Plus products using best practices
+      that allow them to work well together. This policy set is focused on 
+      the components that install to the Advanced Cluster Management hub.
+    name: openshift-plus-hub
+    placement:
+      placementPath: input/hub-placement.yaml
