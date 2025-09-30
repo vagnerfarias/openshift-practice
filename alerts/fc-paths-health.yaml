@@ -1,0 +1,45 @@
+apiVersion: monitoring.openshift.io/v1
+kind: AlertingRule
+metadata:
+  name: fc-path-health
+  namespace: openshift-monitoring
+spec:
+  groups:
+  - name: fc.path.health.rules
+    rules:
+    # A) At least one FC path is down (but not all)
+    - alert: FibreChannelSomePathsDown
+      expr: |
+        (
+          (count by (instance) (node_fibrechannel_info)
+           - count by (instance) (node_fibrechannel_info{port_state="Online"})) > 0
+        )
+        and
+        (
+          count by (instance) (node_fibrechannel_info{port_state="Online"}) > 0
+        )
+      for: 2m
+      labels:
+        severity: warning
+        source: platform
+      annotations:
+        summary: "FC: Some paths down on {{ $labels.instance }}"
+        description: >
+          At least one Fibre Channel HBA port is not Online on {{ $labels.instance }},
+          while others remain Online. Check SAN fabric/zoning, HBAs, and switch ports.
+
+    # B) All FC paths are down (host has HBAs, but none Online)
+    - alert: FibreChannelAllPathsDown
+      expr: |
+        (count by (instance) (node_fibrechannel_info) > 0)
+        and
+        (count by (instance) (node_fibrechannel_info{port_state="Online"}) == 0)
+      for: 1m
+      labels:
+        severity: critical
+        source: platform
+      annotations:
+        summary: "FC: ALL paths down on {{ $labels.instance }}"
+        description: >
+          Host {{ $labels.instance }} reports Fibre Channel HBAs present but no ports Online.
+          Likely fabric outage, zoning change, or storage-side issue.
