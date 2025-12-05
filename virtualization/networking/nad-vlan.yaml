@@ -1,0 +1,40 @@
+---
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+ annotations:
+   description: Network 192.168.20.0/24 VLAN20
+ name: vlan-20
+ namespace: default
+spec:
+ config: |-
+   {
+     "cniVersion": "0.4.0",
+     "name": "vlan-20",
+     "type": "ovn-k8s-cni-overlay",
+     "topology": "localnet",
+     "physicalNetworkName": "vmdata",
+     "netAttachDefName": "default/vlan-20",
+     "vlanID": 20,
+     "ipam": {}
+   }
+---
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+ annotations:
+   description: Network 192.168.21.0/24 VLAN30
+ name: vlan-30
+ namespace: default
+spec:
+ config: |-
+   {
+     "cniVersion": "0.4.0",
+     "name": "vlan-30",
+     "type": "ovn-k8s-cni-overlay",
+     "topology": "localnet",
+     "physicalNetworkName": "vmdata",
+     "netAttachDefName": "default/vlan-30",
+     "vlanID": 30,
+     "ipam": {}
+   }
